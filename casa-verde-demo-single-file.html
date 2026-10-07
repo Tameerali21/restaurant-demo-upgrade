@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Casa Verde — Modern Mexican Kitchen | Austin, TX</title>
+<meta name="description" content="Casa Verde — Modern Mexican Kitchen in Austin, TX. Tacos, enchiladas, margaritas. Book a table in seconds, any time.">
+<style>
+/* Casa Verde demo site + Maya chat widget — all local, zero external requests */
+:root{
+  --verde:#14532d; --verde-dark:#0c3a20; --verde-soft:#e7f0e9;
+  --terra:#c2622b; --terra-dark:#9c4d1f;
+  --cream:#faf5ec; --sand:#f1e7d3; --ink:#22301f; --muted:#6b7263;
+  --card:#ffffff; --line:#e6ddc9;
+  --shadow:0 18px 50px rgba(20,60,35,.16);
+  --r:16px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; color:var(--ink); background:var(--cream);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  line-height:1.6;
+}
+h1,h2,h3{font-family:Georgia,"Times New Roman",serif; line-height:1.2; margin:0 0 .5em}
+.wrap{max-width:1080px; margin:0 auto; padding:0 22px}
+
+/* ---------- nav ---------- */
+.nav{position:sticky; top:0; z-index:40; background:rgba(250,245,236,.94); backdrop-filter:blur(8px); border-bottom:1px solid var(--line)}
+.nav-inner{display:flex; align-items:center; justify-content:space-between; padding:14px 0}
+.brand{font-family:Georgia,serif; font-weight:700; font-size:22px; color:var(--verde-dark); text-decoration:none}
+.brand small{display:block; font-family:inherit; font-weight:400; font-size:11px; letter-spacing:2.5px; text-transform:uppercase; color:var(--terra)}
+.nav-links{display:flex; gap:26px; align-items:center}
+.nav-links a{text-decoration:none; color:var(--ink); font-size:15px}
+.btn{display:inline-block; border:0; cursor:pointer; border-radius:999px; padding:12px 26px; font-size:15px; font-weight:600; text-decoration:none; transition:transform .15s ease, box-shadow .15s ease}
+.btn-terra{background:var(--terra); color:#fff; box-shadow:0 8px 20px rgba(194,98,43,.35)}
+.btn-terra:hover{transform:translateY(-2px); background:var(--terra-dark)}
+.btn-ghost{background:transparent; color:var(--verde-dark); border:2px solid var(--verde)}
+.btn-sm{padding:9px 20px; font-size:14px}
+
+/* ---------- hero ---------- */
+.hero{background:radial-gradient(1200px 500px at 80% -10%, #2c7a4b 0%, var(--verde-dark) 55%, #082a17 100%); color:#fff; padding:84px 0 90px; position:relative; overflow:hidden}
+.hero::after{content:""; position:absolute; inset:0; background:radial-gradient(600px 300px at 15% 110%, rgba(194,98,43,.35), transparent 70%); pointer-events:none}
+.hero-inner{position:relative; z-index:1; max-width:640px}
+.eyebrow{display:inline-block; font-size:12px; letter-spacing:3px; text-transform:uppercase; color:#ffd9a8; margin-bottom:14px}
+.hero h1{font-size:52px; margin-bottom:16px}
+.hero p{font-size:18px; color:#e9e2d2; margin-bottom:30px; max-width:520px}
+.hero-cta{display:flex; gap:14px; flex-wrap:wrap}
+.hero-badges{display:flex; gap:26px; margin-top:38px; flex-wrap:wrap}
+.hero-badges div{font-size:14px; color:#d9d2bd}
+.hero-badges strong{display:block; font-size:22px; color:#fff; font-family:Georgia,serif}
+
+/* ---------- info strip ---------- */
+.strip{background:var(--verde-dark); color:#e9e2d2; padding:18px 0}
+.strip-inner{display:flex; gap:36px; flex-wrap:wrap; font-size:14.5px}
+.strip-inner span{display:flex; align-items:center; gap:9px}
+.dot{width:8px; height:8px; border-radius:50%; background:#7ee2a0; display:inline-block; box-shadow:0 0 10px #7ee2a0}
+
+/* ---------- sections ---------- */
+section.block{padding:72px 0}
+.sec-head{text-align:center; max-width:620px; margin:0 auto 44px}
+.sec-head h2{font-size:36px; color:var(--verde-dark)}
+.sec-head p{color:var(--muted); margin:0}
+.menu-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:20px}
+.menu-card{background:var(--card); border:1px solid var(--line); border-radius:var(--r); padding:24px; box-shadow:0 6px 18px rgba(20,60,35,.06)}
+.menu-card .cat{font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--terra); font-weight:700}
+.menu-card h3{font-size:20px; margin:.35em 0 .3em; color:var(--verde-dark)}
+.menu-card p{font-size:14.5px; color:var(--muted); margin:0 0 12px}
+.menu-card .price{font-weight:700; color:var(--ink); font-size:17px}
+
+/* testimonials */
+.testis{display:grid; grid-template-columns:repeat(3,1fr); gap:20px}
+.testi{background:var(--card); border:1px solid var(--line); border-radius:var(--r); padding:26px}
+.testi .stars{color:#e8a13c; letter-spacing:3px; margin-bottom:10px}
+.testi p{font-size:15px; margin:0 0 14px}
+.testi cite{font-style:normal; font-size:13.5px; color:var(--muted)}
+
+/* visit */
+.visit{background:var(--verde-soft); border-top:1px solid var(--line); border-bottom:1px solid var(--line)}
+.visit-grid{display:grid; grid-template-columns:1fr 1fr; gap:34px; align-items:start}
+.hours{width:100%; border-collapse:collapse; font-size:15px}
+.hours td{padding:9px 0; border-bottom:1px dashed #c9d6c9}
+.hours td:last-child{text-align:right; font-weight:600}
+.addr-card{background:var(--card); border:1px solid var(--line); border-radius:var(--r); padding:28px}
+.addr-card h3{color:var(--verde-dark); margin-bottom:8px}
+.addr-card p{margin:.3em 0; font-size:15px}
+.addr-card a{color:var(--terra-dark); font-weight:600}
+
+/* footer */
+footer{padding:34px 0 90px; text-align:center; color:var(--muted); font-size:13.5px}
+
+/* ============================================================
+   MAYA CHAT WIDGET
+   ============================================================ */
+#maya-bubble{
+  position:fixed; right:26px; bottom:26px; z-index:1000;
+  width:62px; height:62px; border-radius:50%; border:0; cursor:pointer;
+  background:var(--terra); color:#fff; font-size:28px;
+  box-shadow:0 12px 30px rgba(194,98,43,.45);
+  display:flex; align-items:center; justify-content:center;
+  transition:transform .18s ease;
+}
+#maya-bubble:hover{transform:scale(1.07)}
+#maya-bubble::before{content:""; position:absolute; inset:-5px; border-radius:50%; border:2px solid var(--terra); opacity:.6; animation:ping 2.2s ease-out infinite}
+@keyframes ping{0%{transform:scale(.85); opacity:.7} 80%,100%{transform:scale(1.25); opacity:0}}
+#maya-bubble.hidden{display:none}
+#maya-unread{position:absolute; top:-4px; right:-4px; background:#d33; color:#fff; font-size:11px; font-weight:700; min-width:22px; height:22px; border-radius:11px; display:flex; align-items:center; justify-content:center; padding:0 6px; border:2px solid #fff}
+#maya-unread.hidden{display:none}
+
+#maya-panel{
+  position:fixed; right:26px; bottom:26px; z-index:1001;
+  width:384px; max-width:calc(100vw - 32px); height:600px; max-height:calc(100vh - 60px);
+  background:#fff; border-radius:20px; box-shadow:var(--shadow);
+  display:flex; flex-direction:column; overflow:hidden;
+  transform:translateY(24px) scale(.97); opacity:0; pointer-events:none;
+  transition:transform .25s ease, opacity .25s ease;
+  border:1px solid var(--line);
+}
+#maya-panel.open{transform:none; opacity:1; pointer-events:auto}
+.maya-head{background:linear-gradient(135deg, var(--verde) 0%, var(--verde-dark) 100%); color:#fff; padding:16px 18px 12px; display:flex; align-items:center; gap:12px}
+.maya-avatar{width:44px; height:44px; border-radius:50%; background:#fff; color:var(--verde-dark); font-family:Georgia,serif; font-weight:700; font-size:22px; display:flex; align-items:center; justify-content:center; flex:none}
+.maya-head .who{flex:1; min-width:0}
+.maya-head .who b{font-size:16px; display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.maya-head .who .status{font-size:12.5px; color:#cfe6d4; display:flex; align-items:center; gap:6px}
+.maya-head .who .online{width:8px; height:8px; border-radius:50%; background:#7ee2a0; display:inline-block}
+#maya-close{background:rgba(255,255,255,.14); border:0; color:#fff; width:32px; height:32px; border-radius:50%; cursor:pointer; font-size:16px; flex:none}
+.maya-credit{background:rgba(0,0,0,.18); color:#e8dfc9; font-size:10.5px; letter-spacing:.4px; padding:5px 18px}
+
+#maya-msgs{flex:1; overflow-y:auto; padding:18px 14px; background:linear-gradient(#fbf8f0,#f7f2e6); display:flex; flex-direction:column; gap:10px}
+.mrow{display:flex; gap:8px; align-items:flex-end; max-width:92%}
+.mrow.bot{align-self:flex-start}
+.mrow.user{align-self:flex-end; justify-content:flex-end}
+.mavatar{width:28px; height:28px; border-radius:50%; background:var(--verde); color:#fff; font-size:14px; font-family:Georgia,serif; display:flex; align-items:center; justify-content:center; flex:none}
+.bubble{padding:11px 14px; border-radius:16px; font-size:14.5px; line-height:1.5; word-wrap:break-word}
+.bot .bubble{background:#fff; border:1px solid var(--line); border-bottom-left-radius:5px; color:var(--ink); box-shadow:0 2px 8px rgba(20,60,35,.06)}
+.user .bubble{background:var(--verde); color:#fff; border-bottom-right-radius:5px}
+.bubble b{font-weight:700}
+.bubble .ref{display:inline-block; background:var(--verde-soft); color:var(--verde-dark); font-weight:700; padding:2px 10px; border-radius:8px; letter-spacing:1px; margin:4px 0}
+.notice{background:#2b2118; color:#ffd9a8; border-radius:14px; padding:12px 14px; font-size:13.5px; line-height:1.5; border:1px solid #6b4d2a}
+.dashcard{background:#fff; border:1px solid var(--line); border-left:5px solid var(--verde); border-radius:12px; padding:13px 14px; font-size:13.5px; box-shadow:0 4px 14px rgba(20,60,35,.1)}
+.dashcard .dl-head{font-weight:700; color:var(--verde-dark); margin-bottom:6px; font-size:13px; letter-spacing:.5px; text-transform:uppercase}
+.dashcard .dl-row{margin:3px 0; color:var(--ink)}
+.dashcard .dl-row span{color:var(--muted)}
+.typing{display:inline-flex; gap:5px; padding:14px 16px}
+.typing i{width:8px; height:8px; border-radius:50%; background:#9aa394; animation:tp 1.1s infinite}
+.typing i:nth-child(2){animation-delay:.18s}.typing i:nth-child(3){animation-delay:.36s}
+@keyframes tp{0%,60%,100%{transform:none; opacity:.5}30%{transform:translateY(-5px); opacity:1}}
+
+#maya-chips{display:flex; gap:8px; flex-wrap:wrap; padding:10px 14px 4px; background:#fbf8f0}
+#maya-chips:empty{padding:0}
+.chip{border:1.5px solid var(--terra); background:#fff; color:var(--terra-dark); border-radius:999px; padding:7px 14px; font-size:13px; font-weight:600; cursor:pointer; transition:background .15s}
+.chip:hover{background:#fdf0e3}
+.stars-row{display:flex; gap:6px; padding:4px 0}
+.star-btn{background:none; border:0; font-size:30px; cursor:pointer; filter:grayscale(1); opacity:.55; transition:transform .12s; padding:2px}
+.star-btn.lit,.star-btn:hover{filter:none; opacity:1; transform:scale(1.15)}
+.gbtn{display:inline-block; margin-top:8px; background:#fff; border:1.5px solid #4285f4; color:#1a73e8; border-radius:10px; padding:9px 16px; font-size:13.5px; font-weight:600; text-decoration:none}
+
+#maya-inputbar{display:flex; gap:8px; padding:12px 14px; border-top:1px solid var(--line); background:#fff}
+#maya-input{flex:1; border:1.5px solid var(--line); border-radius:999px; padding:11px 16px; font-size:14.5px; outline:none; font-family:inherit}
+#maya-input:focus{border-color:var(--terra)}
+#maya-send{border:0; background:var(--terra); color:#fff; width:44px; height:44px; border-radius:50%; cursor:pointer; font-size:18px; flex:none}
+#maya-send:hover{background:var(--terra-dark)}
+
+@media (max-width:640px){
+  .hero h1{font-size:38px}
+  .menu-grid,.testis{grid-template-columns:1fr}
+  .visit-grid{grid-template-columns:1fr}
+  .nav-links a:not(.btn){display:none}
+  #maya-panel{right:12px; bottom:12px; width:calc(100vw - 24px); height:78vh}
+  #maya-bubble{right:16px; bottom:16px}
+  section.block{padding:52px 0}
+}
+
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="#"><span data-biz="name">Casa Verde</span><small data-biz="tagline">Modern Mexican Kitchen</small></a>
+    <div class="nav-links">
+      <a href="#menu">Menu</a>
+      <a href="#visit">Hours &amp; Location</a>
+      <a href="#reviews">Reviews</a>
+      <a href="#" class="btn btn-terra btn-sm" data-action="book">Book a table</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap hero-inner">
+    <span class="eyebrow" data-biz="city">Austin, TX</span>
+    <h1>Real flavor.<br>Zero wait.</h1>
+    <p>Slow-cooked al pastor, hand-pressed tortillas, and margaritas worth writing home about &mdash; in the heart of South Congress.</p>
+    <div class="hero-cta">
+      <a href="#" class="btn btn-terra" data-action="book">Book a table</a>
+      <a href="#menu" class="btn btn-ghost" style="color:#fff;border-color:#fff">View menu</a>
+    </div>
+    <div class="hero-badges">
+      <div><strong>4.9 &#11088;</strong>2,300+ Google reviews</div>
+      <div><strong>20 min</strong>avg. takeout ready</div>
+      <div><strong>11&ndash;11</strong>open late Fri&ndash;Sat</div>
+    </div>
+  </div>
+</header>
+
+<div class="strip">
+  <div class="wrap strip-inner">
+    <span><i class="dot"></i> Open now &mdash; kitchen till 10 PM</span>
+    <span>&#128205; <span data-biz="address">2410 S Congress Ave, Austin, TX 78704</span></span>
+    <span>&#128222; <span data-biz="phone">(512) 555-0147</span></span>
+  </div>
+</div>
+
+<section class="block" id="menu">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>The menu</h2>
+      <p>Everything made from scratch, every morning. Ask <span data-biz="host">Maya</span> below about vegan &amp; gluten-free options.</p>
+    </div>
+    <div class="menu-grid">
+      <div class="menu-card"><div class="cat">Tacos</div><h3>Baja Fish Tacos</h3><p>Crispy cod, chipotle crema, lime slaw, corn tortillas.</p><div class="price">$14</div></div>
+      <div class="menu-card"><div class="cat">Tacos</div><h3>Al Pastor Tacos</h3><p>12-hour marinated pork, grilled pineapple, cilantro &amp; onion.</p><div class="price">$12</div></div>
+      <div class="menu-card"><div class="cat">Tacos</div><h3>Jackfruit Carnitas <span style="font-size:12px;color:var(--terra)">&#9679; vegan</span></h3><p>Slow-braised jackfruit, pickled onion, avocado salsa.</p><div class="price">$13</div></div>
+      <div class="menu-card"><div class="cat">Kitchen</div><h3>Verde Enchiladas</h3><p>Roasted chicken, house tomatillo salsa, crema, queso fresco.</p><div class="price">$16</div></div>
+      <div class="menu-card"><div class="cat">Kitchen</div><h3>Chipotle Chicken Bowl <span style="font-size:12px;color:var(--terra)">&#9679; GF</span></h3><p>Cilantro-lime rice, black beans, charred corn, chipotle chicken.</p><div class="price">$15</div></div>
+      <div class="menu-card"><div class="cat">Kitchen</div><h3>Queso Fundido</h3><p>Bubbling Oaxaca cheese, chorizo, warm flour tortillas.</p><div class="price">$11</div></div>
+      <div class="menu-card"><div class="cat">Sips</div><h3>Classic Margarita</h3><p>Blanco tequila, fresh lime, agave, taj&iacute;n rim.</p><div class="price">$11</div></div>
+      <div class="menu-card"><div class="cat">Sips</div><h3>Horchata Latte</h3><p>House horchata, espresso, cinnamon. Iced or hot.</p><div class="price">$6</div></div>
+      <div class="menu-card"><div class="cat">Sweet</div><h3>Churros con Chocolate</h3><p>Cinnamon churros, Oaxacan drinking chocolate.</p><div class="price">$8</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="block visit" id="visit">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>Visit us</h2>
+      <p>Walk-ins welcome. Reservations smarter &mdash; grab one in seconds.</p>
+    </div>
+    <div class="visit-grid">
+      <div>
+        <table class="hours">
+          <tr><td>Monday &ndash; Thursday</td><td>11 AM &ndash; 10 PM</td></tr>
+          <tr><td>Friday &ndash; Saturday</td><td>11 AM &ndash; 11 PM</td></tr>
+          <tr><td>Sunday</td><td>10 AM &ndash; 9 PM</td></tr>
+          <tr><td>Sunday brunch</td><td>10 AM &ndash; 2 PM</td></tr>
+        </table>
+        <p style="margin-top:22px"><a href="#" class="btn btn-terra" data-action="book">Book a table now</a></p>
+      </div>
+      <div class="addr-card">
+        <h3><span data-biz="name">Casa Verde</span></h3>
+        <p>&#128205; <span data-biz="address">2410 S Congress Ave, Austin, TX 78704</span></p>
+        <p>&#128222; <a href="tel:+15125550147" data-biz="phone">(512) 555-0147</a></p>
+        <p style="color:var(--muted);font-size:14px">Free parking out back &middot; Patio seating &middot; Family friendly</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="reviews">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>What Austin says</h2>
+      <p>4.9 stars across 2,300+ Google reviews.</p>
+    </div>
+    <div class="testis">
+      <div class="testi"><div class="stars">&#11088;&#11088;&#11088;&#11088;&#11088;</div><p>"The al pastor tacos ruined all other tacos for me. Booked a table at midnight through their site &mdash; confirmed by morning."</p><cite>&mdash; Daniela R., South Congress</cite></div>
+      <div class="testi"><div class="stars">&#11088;&#11088;&#11088;&#11088;&#11088;</div><p>"Asked about gluten-free options in the chat and got an instant answer. The chipotle bowl is my weekly ritual now."</p><cite>&mdash; Marcus T., Zilker</cite></div>
+      <div class="testi"><div class="stars">&#11088;&#11088;&#11088;&#11088;&#11088;</div><p>"Patio, margaritas, live playlist &mdash; perfect date night. Zero wait with a reservation even on a Friday."</p><cite>&mdash; Priya S., Mueller</cite></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p><span data-biz="name">Casa Verde</span> &middot; <span data-biz="tagline">Modern Mexican Kitchen</span> &middot; <span data-biz="city">Austin, TX</span></p>
+    <p style="margin-top:6px">Interactive demo experience &mdash; bookings and messages shown here are simulated.</p>
+  </div>
+</footer>
+
+<!-- ============ MAYA CHAT WIDGET ============ -->
+<button id="maya-bubble" aria-label="Chat with us">&#128172;<span id="maya-unread" class="hidden">1</span></button>
+
+<div id="maya-panel" role="dialog" aria-label="Chat with Casa Verde">
+  <div class="maya-head">
+    <div class="maya-avatar" data-biz="host-initial">M</div>
+    <div class="who">
+      <b><span data-biz="host">Maya</span> &middot; <span data-biz="name">Casa Verde</span> host</b>
+      <span class="status"><i class="online"></i> Online &mdash; replies instantly, even after hours</span>
+    </div>
+    <button id="maya-close" aria-label="Close chat">&#10005;</button>
+  </div>
+  <div class="maya-credit">Live demo by Tameer Ali &middot; AI Automation</div>
+  <div id="maya-msgs"></div>
+  <div id="maya-chips"></div>
+  <div id="maya-inputbar">
+    <input id="maya-input" type="text" placeholder="Ask about the menu, hours, or book a table&hellip;" autocomplete="off" maxlength="300">
+    <button id="maya-send" aria-label="Send">&#10148;</button>
+  </div>
+</div>
+
+<script>
+/* Maya — "Never Miss a Customer" demo chat engine.
+   100% client-side. No network calls, no tracking. Works from file:// .
+   Test hooks: ?fast=1 skips delays; window.__maya exposes state + send(). */
+(function () {
+  'use strict';
+
+  var qs = new URLSearchParams(location.search);
+  var FAST = qs.get('fast') === '1';
+
+  /* ---------- business profile (personalizable via ?biz= etc.) ---------- */
+  var BIZ = {
+    name:    qs.get('biz')     || 'Casa Verde',
+    tagline: qs.get('tagline') || 'Modern Mexican Kitchen',
+    city:    qs.get('city')    || 'Austin, TX',
+    address: qs.get('address') || '2410 S Congress Ave, Austin, TX 78704',
+    phone:   qs.get('phone')   || '(512) 555-0147',
+    host: 'Maya'
+  };
+  // short ref prefix derived from name, e.g. "Casa Verde" -> "CV"
+  BIZ.refPrefix = BIZ.name.replace(/[^A-Za-z]/g, '').slice(0, 2).toUpperCase() || 'CV';
+
+  /* apply personalization to the page */
+  function personalize() {
+    document.querySelectorAll('[data-biz="name"]').forEach(function (el) { el.textContent = BIZ.name; });
+    document.querySelectorAll('[data-biz="tagline"]').forEach(function (el) { el.textContent = BIZ.tagline; });
+    document.querySelectorAll('[data-biz="city"]').forEach(function (el) { el.textContent = BIZ.city; });
+    document.querySelectorAll('[data-biz="address"]').forEach(function (el) { el.textContent = BIZ.address; });
+    document.querySelectorAll('[data-biz="phone"]').forEach(function (el) { el.textContent = BIZ.phone; });
+    document.querySelectorAll('[data-biz="host"]').forEach(function (el) { el.textContent = BIZ.host; });
+    document.querySelectorAll('[data-biz="host-initial"]').forEach(function (el) { el.textContent = BIZ.host.charAt(0); });
+    document.title = BIZ.name + ' — ' + BIZ.tagline + ' | ' + BIZ.city;
+  }
+
+  /* ---------- dom ---------- */
+  var panel, msgs, chipsBox, input, bubble, unread, closeBtn;
+  var opened = false, autoOpened = false, greeted = false;
+
+  /* conversation state */
+  var S = {
+    mode: 'idle',          // idle | booking | afterhours | review
+    step: 0,
+    booking: {},
+    ah: {},
+    lastTopic: null
+  };
+
+  function $(id) { return document.getElementById(id); }
+
+  function delay(ms) {
+    return new Promise(function (res) { setTimeout(res, FAST ? 0 : ms); });
+  }
+
+  function scrollDown() { msgs.scrollTop = msgs.scrollHeight; }
+
+  function el(tag, cls, html) {
+    var d = document.createElement(tag);
+    if (cls) d.className = cls;
+    if (html !== undefined) d.innerHTML = html;
+    return d;
+  }
+
+  /* ---------- rendering ---------- */
+  function addUser(text) {
+    var row = el('div', 'mrow user');
+    row.appendChild(el('div', 'bubble', escapeHtml(text)));
+    msgs.appendChild(row); scrollDown();
+  }
+
+  function addBot(html, opts) {
+    var row = el('div', 'mrow bot');
+    row.appendChild(el('div', 'mavatar', BIZ.host.charAt(0)));
+    var b = el('div', 'bubble', html);
+    row.appendChild(b);
+    msgs.appendChild(row);
+    if (opts && opts.notice) b.classList.add('notice');
+    scrollDown();
+    return b;
+  }
+
+  function addNotice(html) {
+    var row = el('div', 'mrow bot');
+    row.appendChild(el('div', 'notice', html));
+    row.style.maxWidth = '100%';
+    msgs.appendChild(row); scrollDown();
+  }
+
+  function addDashCard(rows) {
+    var row = el('div', 'mrow bot');
+    var card = el('div', 'dashcard');
+    card.appendChild(el('div', 'dl-head', '&#128203; Saved to your dashboard'));
+    rows.forEach(function (r) {
+      card.appendChild(el('div', 'dl-row', '<span>' + r[0] + ':</span> <b>' + escapeHtml(r[1]) + '</b>'));
+    });
+    row.appendChild(card);
+    row.style.maxWidth = '100%';
+    msgs.appendChild(row); scrollDown();
+  }
+
+  function showTyping() {
+    var row = el('div', 'mrow bot', '');
+    row.id = 'maya-typing-row';
+    row.appendChild(el('div', 'mavatar', BIZ.host.charAt(0)));
+    var b = el('div', 'bubble typing', '<i></i><i></i><i></i>');
+    row.appendChild(b);
+    msgs.appendChild(row); scrollDown();
+  }
+  function hideTyping() {
+    var t = $('maya-typing-row');
+    if (t) t.remove();
+  }
+
+  function setChips(list) {
+    chipsBox.innerHTML = '';
+    (list || []).forEach(function (c) {
+      var btn = el('button', 'chip', c.label);
+      btn.type = 'button';
+      btn.addEventListener('click', function () { userSays(c.value || c.label, c.silent); });
+      chipsBox.appendChild(btn);
+    });
+    scrollDown();
+  }
+
+  function showStars() {
+    chipsBox.innerHTML = '';
+    var wrap = el('div', 'stars-row');
+    for (var i = 1; i <= 5; i++) {
+      (function (n) {
+        var s = el('button', 'star-btn', '&#11088;');
+        s.type = 'button';
+        s.setAttribute('aria-label', n + ' star' + (n > 1 ? 's' : ''));
+        s.addEventListener('click', function () { pickStars(n); });
+        wrap.appendChild(s);
+      })(i);
+    }
+    chipsBox.appendChild(wrap);
+    scrollDown();
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  /* ---------- bot speech ---------- */
+  function say(html, chips, opts) {
+    showTyping();
+    var wait = Math.min(700 + html.length * 6, 1900);
+    return delay(wait).then(function () {
+      hideTyping();
+      addBot(html);
+      setChips(chips);
+    });
+  }
+
+  function sayMany(items) {
+    // items: [{html, chips, notice}]
+    var p = Promise.resolve();
+    items.forEach(function (it) {
+      p = p.then(function () {
+        showTyping();
+        var wait = Math.min(600 + (it.html || '').length * 5, 1700);
+        return delay(wait).then(function () {
+          hideTyping();
+          if (it.dash) { addDashCard(it.dash); }
+          else if (it.notice) { addNotice(it.html); }
+          else { addBot(it.html); }
+          setChips(it.chips);
+        });
+      });
+    });
+    return p;
+  }
+
+  /* ---------- helpers ---------- */
+  function makeRef() {
+    var chars = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+    var r = '';
+    for (var i = 0; i < 5; i++) r += chars.charAt(Math.floor(Math.random() * chars.length));
+    return BIZ.refPrefix + '-' + r;
+  }
+
+  var WORDNUM = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, twelve: 12 };
+  function parseParty(t) {
+    var m = t.match(/\d{1,2}/);
+    if (m) return parseInt(m[0], 10);
+    var low = t.toLowerCase();
+    for (var w in WORDNUM) if (low.indexOf(w) !== -1) return WORDNUM[w];
+    return null;
+  }
+  function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+  function has(t) {
+    var words = Array.prototype.slice.call(arguments, 1);
+    return words.some(function (w) { return t.indexOf(w) !== -1; });
+  }
+
+  /* ---------- intent answers ---------- */
+  function hoursHtml() {
+    return '<b>We\'re open:</b><br>Mon&ndash;Thu &middot; 11 AM &ndash; 10 PM<br>' +
+      'Fri&ndash;Sat &middot; 11 AM &ndash; 11 PM<br>Sun &middot; 10 AM &ndash; 9 PM <i>(brunch 10&ndash;2)</i><br><br>' +
+      'Kitchen closes 30 min before we do. Want me to grab you a table?';
+  }
+
+  function menuHtml() {
+    return 'Taco Tuesday energy, every day. &#127790;<br><br>' +
+      '<b>Guest favorites:</b><br>&middot; Baja Fish Tacos &mdash; $14<br>' +
+      '&middot; Al Pastor Tacos &mdash; $12<br>&middot; Verde Enchiladas &mdash; $16<br>' +
+      '&middot; Chipotle Chicken Bowl &mdash; $15<br>&middot; Queso Fundido &mdash; $11<br><br>' +
+      'Plenty of <b>vegan</b> and <b>gluten-free</b> options too. Anything catching your eye?';
+  }
+
+  function defaultChips() {
+    return [
+      { label: '&#128203; See the menu' },
+      { label: '&#128197; Book a table' },
+      { label: '&#127769; After-hours demo' },
+      { label: '&#11088; Rate your visit' }
+    ];
+  }
+
+  function greet() {
+    greeted = true;
+    return say(
+      'Hi there! I\'m <b>' + escapeHtml(BIZ.host) + '</b>, ' + escapeHtml(BIZ.name) + '\'s host. &#127790;<br><br>' +
+      'Ask me about the <b>menu</b> or <b>hours</b> &mdash; or I can <b>book you a table</b> right now. What sounds good?',
+      defaultChips()
+    );
+  }
+
+  /* ---------- flows ---------- */
+  function startBooking() {
+    S.mode = 'booking'; S.step = 0; S.booking = {};
+    return say('Wonderful &mdash; let\'s get you a table. <b>How many guests?</b>',
+      [{ label: '2' }, { label: '4' }, { label: '6' }, { label: '8+' }]);
+  }
+
+  function bookingStep(text) {
+    var t = text.toLowerCase().trim();
+    if (S.step === 0) {
+      var n = parseParty(t);
+      if (!n || n < 1 || n > 30) {
+        return say('How many guests should I set the table for? <i>(a number works great)</i>',
+          [{ label: '2' }, { label: '4' }, { label: '6' }]);
+      }
+      S.booking.party = (t.indexOf('8+') !== -1 || n >= 8) ? '8+' : String(n);
+      S.step = 1;
+      return say('<b>Table for ' + escapeHtml(S.booking.party) + '</b> &mdash; lovely. <b>Which day?</b>',
+        [{ label: 'Tonight' }, { label: 'Tomorrow' }, { label: 'Friday' }, { label: 'Saturday' }]);
+    }
+    if (S.step === 1) {
+      var day = 'Friday';
+      if (has(t, 'tonight', 'today')) day = 'Tonight';
+      else if (has(t, 'tomorrow')) day = 'Tomorrow';
+      else {
+        var dm = t.match(/monday|tuesday|wednesday|thursday|friday|saturday|sunday/);
+        if (dm) day = cap(dm[0]);
+      }
+      S.booking.day = day; S.step = 2;
+      return say('<b>' + escapeHtml(day) + '</b> it is. <b>What time works best?</b>',
+        [{ label: '6:00 PM' }, { label: '6:30 PM' }, { label: '7:00 PM' }, { label: '7:30 PM' }, { label: '8:00 PM' }]);
+    }
+    if (S.step === 2) {
+      var tm = t.match(/\d{1,2}(:\d{2})?\s*(am|pm)?/);
+      if (!tm) {
+        return say('What <b>time</b> should I hold the table for? <i>(e.g. 7:00 PM)</i>',
+          [{ label: '6:30 PM' }, { label: '7:00 PM' }, { label: '7:30 PM' }]);
+      }
+      var time = text.trim();
+      if (!/am|pm/i.test(time)) time += ' PM';
+      S.booking.time = time; S.step = 3;
+      return say('Perfect &mdash; <b>' + escapeHtml(S.booking.time) + '</b>. <b>What name</b> should I put the reservation under?');
+    }
+    if (S.step === 3) {
+      var name = text.trim();
+      if (name.length < 2 || name.length > 40) {
+        return say('And the <b>name</b> for the reservation?');
+      }
+      S.booking.name = name; S.step = 4;
+      return say('Almost done, ' + escapeHtml(cap(name.split(' ')[0])) +
+        '! Want a <b>text confirmation</b>? Drop your number &mdash; or skip it.',
+        [{ label: 'Skip', value: 'skip' }]);
+    }
+    if (S.step === 4) {
+      var ref = makeRef();
+      S.booking.ref = ref;
+      var line = '<b>&#9989; You\'re booked!</b><br><br>Table for <b>' + escapeHtml(S.booking.party) + '</b> &middot; ' +
+        escapeHtml(S.booking.day) + ' at <b>' + escapeHtml(S.booking.time) + '</b><br>Under: <b>' + escapeHtml(S.booking.name) + '</b><br>' +
+        'Reference: <span class="ref">' + ref + '</span><br><br>';
+      if (t !== 'skip' && /\d/.test(t)) line += 'Confirmation text on its way. ';
+      line += 'Show this reference at the door &mdash; we\'ll have your table ready. Anything else I can help with?';
+      S.mode = 'idle'; S.step = 0;
+      return say(line, [{ label: '&#128203; See the menu' }, { label: '&#128336; Hours & location' }]);
+    }
+  }
+
+  function startAfterHours() {
+    S.mode = 'afterhours'; S.step = 0; S.ah = {};
+    return sayMany([
+      {
+        notice: true,
+        html: '&#127769; <b>It\'s 11:42 PM</b> &mdash; we\'re closed right now, but I\'m ' + escapeHtml(BIZ.host) +
+          ', ' + escapeHtml(BIZ.name) + '\'s host, and I\'m still here. <b>No customer waits till morning.</b>'
+      },
+      { html: 'Leave your <b>name</b> and I\'ll make sure the morning team confirms your table by <b>11 AM</b>.' }
+    ]);
+  }
+
+  function afterHoursStep(text) {
+    var t = text.trim();
+    if (S.step === 0) {
+      if (t.length < 2 || t.length > 40 || /\d/.test(t)) {
+        return say('What <b>name</b> should I save this under?');
+      }
+      S.ah.name = t; S.step = 1;
+      return say('Thanks, ' + escapeHtml(cap(t.split(' ')[0])) + '! And the best <b>number</b> to reach you in the morning?');
+    }
+    if (S.step === 1) {
+      var digits = t.replace(/\D/g, '');
+      if (digits.length < 7) {
+        return say('Hmm, that doesn\'t look like a complete number &mdash; mind double-checking it? <i>(digits only is fine)</i>');
+      }
+      S.ah.phone = t; S.step = 2;
+      return say('Got it. And <b>what should we set up</b> for you? <i>(e.g. "table for 2 Friday")</i>',
+        [{ label: 'Just a table for 2', value: 'Table for 2' }, { label: 'Skip', value: 'skip' }]);
+    }
+    if (S.step === 2) {
+      S.ah.request = (t === 'skip') ? 'General inquiry' : t;
+      S.mode = 'idle'; S.step = 0;
+      return sayMany([
+        { html: '<b>&#9989; Saved!</b> We\'ll confirm by <b>11 AM</b> &mdash; no need to call back or wonder if anyone saw your message.' },
+        {
+          dash: [
+            ['New lead', S.ah.name],
+            ['Phone', S.ah.phone],
+            ['Wants', S.ah.request],
+            ['Captured', '11:42 PM (after hours)']
+          ]
+        },
+        {
+          html: 'That\'s the whole point &mdash; <b>every late-night visitor becomes a morning reservation</b>, not a missed customer. Anything else tonight?',
+          chips: defaultChips()
+        }
+      ]);
+    }
+  }
+
+  function startReview() {
+    S.mode = 'review'; S.step = 0;
+    return say('We\'d love to hear it &mdash; <b>how was your meal?</b> Tap the stars:').then(function () {
+      showStars();
+    });
+  }
+
+  function pickStars(n) {
+    chipsBox.innerHTML = '';
+    addUser('\u2B50'.repeat(n));
+    if (n === 5) {
+      S.mode = 'idle';
+      say('That made our day! &#128525;<br><br>Would you <b>share that on Google</b>? It genuinely keeps a local spot like us thriving.',
+        [{ label: 'Not now', value: 'not now' }]).then(function () {
+          var row = document.querySelector('#maya-msgs .mrow.bot:last-child .bubble');
+          if (row) {
+            var a = document.createElement('a');
+            a.className = 'gbtn'; a.href = 'https://www.google.com/maps'; a.target = '_blank'; a.rel = 'noopener';
+            a.textContent = '\u2B50 Leave a Google review';
+            row.appendChild(document.createElement('br'));
+            row.appendChild(a); scrollDown();
+          }
+        });
+    } else {
+      S.mode = 'review'; S.step = 1;
+      say('Thank you for being honest &mdash; that\'s how we get better. <b>What could we do better</b> next time?');
+    }
+  }
+
+  function reviewStep(text) {
+    S.mode = 'idle'; S.step = 0;
+    return say('<b>Noted &mdash; truly.</b> Our manager will personally follow up on this.<br><br>' +
+      'We\'d love a second chance to earn those last stars. Can I book you a table for another try?',
+      [{ label: '&#128197; Book a table' }, { label: 'No thanks', value: 'no thanks' }]);
+  }
+
+  /* ---------- main router ---------- */
+  function route(text) {
+    var t = text.toLowerCase().trim();
+
+    if (S.mode === 'booking') return bookingStep(text);
+    if (S.mode === 'afterhours') return afterHoursStep(text);
+    if (S.mode === 'review' && S.step === 1) return reviewStep(text);
+
+    if (has(t, 'book', 'reserv', 'table for', 'seat')) return startBooking();
+    if (has(t, 'after hour', 'after-hour', 'closed', 'late night', 'midnight', '11:42')) return startAfterHours();
+    if (has(t, 'review', 'rate', 'stars', 'feedback')) return startReview();
+    if (has(t, 'hour', 'open', 'close', 'when do you', 'what time')) return say(hoursHtml(), [{ label: '&#128197; Book a table' }]);
+    if (has(t, 'where', 'address', 'location', 'direction', 'park', 'find you')) {
+      return say('Find us at <b>' + escapeHtml(BIZ.address) + '</b> &mdash; right on South Congress, free parking out back. &#128205;<br><br>Call us anytime: <b>' + escapeHtml(BIZ.phone) + '</b>',
+        [{ label: '&#128197; Book a table' }]);
+    }
+    if (has(t, 'vegan')) return say('Yes! Our <b>jackfruit carnitas tacos</b> ($13) and <b>roasted veggie bowl</b> ($14) are fully vegan &mdash; and most dishes can be made vegan on request. &#129382;', [{ label: '&#128197; Book a table' }]);
+    if (has(t, 'vegetarian')) return say('Plenty! <b>Queso fundido</b> ($11), <b>verde enchiladas</b> ($16, ask veggie-style), and our <b>street corn</b> ($7) are all vegetarian. &#127803;', [{ label: '&#128197; Book a table' }]);
+    if (has(t, 'gluten')) return say('Most of our menu is <b>gluten-free</b> &mdash; everything on corn tortillas, plus all bowls and salads. Just mention it and the kitchen takes care of the rest.', [{ label: '&#128197; Book a table' }]);
+    if (has(t, 'menu', 'taco', 'food', 'dish', 'hungry', 'enchilada', 'queso', 'burrito', 'margarita') || /\beat\b/.test(t)) return say(menuHtml(), [{ label: '&#128197; Book a table' }]);
+    if (has(t, 'price', 'cost', 'how much', 'expensive', 'cheap', '$$')) return say('Easy on the wallet &mdash; most plates run <b>$11&ndash;$18</b>, tacos from <b>$12</b>. Dinner for two with margaritas usually lands around <b>$55&ndash;$70</b>. &#127790;', [{ label: '&#128203; See the menu' }]);
+    if (has(t, 'deliver', 'takeout', 'take out', 'to go', 'uber eat', 'doordash')) return say('Yes &mdash; <b>takeout and delivery</b>, ready in about 20 minutes. Order right here and I\'ll have the kitchen fire it up. What are you craving?', [{ label: '&#128203; See the menu' }]);
+    if (has(t, 'human', 'person', 'real person', 'call you', 'phone number', 'speak to')) return say('Of course &mdash; call us at <b>' + escapeHtml(BIZ.phone) + '</b> during open hours and a real human picks up. But honestly? I can handle <b>bookings, menus, and hours</b> right here, even at 2 AM. &#128521;', defaultChips());
+    if (has(t, 'thank', 'thanks', 'thx', 'great', 'awesome', 'perfect')) return say('Anytime! That\'s what I\'m here for. &#127790;', defaultChips());
+    if (has(t, 'bye', 'goodbye', 'see you', 'later')) { S.mode = 'idle'; return say('See you soon at ' + escapeHtml(BIZ.name) + '! Bring an appetite. &#127790;'); }
+    if (/\b(hi+|hello|hey+|hola|yo)\b/.test(t) || has(t, 'good morning', 'good evening')) return say('Hey hey! &#128075; What can I do for you &mdash; <b>menu</b>, <b>hours</b>, or shall I <b>book a table</b>?', defaultChips());
+    if (has(t, 'no thanks', 'not now', 'nope', "i'm good", 'im good')) { S.mode = 'idle'; return say('No worries at all! I\'m here whenever you need me. &#127790;', defaultChips()); }
+
+    /* graceful fallback — never dead-ends */
+    S.lastTopic = text;
+    return say('Great question &mdash; let me have the team confirm that for you. &#128172;<br><br>Meanwhile, can I help with a <b>reservation</b>, the <b>menu</b>, or our <b>hours</b>?',
+      [{ label: '&#128197; Book a table' }, { label: '&#128203; See the menu' }, { label: '&#128336; Hours & location' }]);
+  }
+
+  function userSays(text, silent) {
+    if (!text || !text.trim()) return Promise.resolve();
+    text = text.trim();
+    setChips([]);
+    if (!silent) addUser(text);
+    return route(text);
+  }
+
+  /* ---------- open / close ---------- */
+  function openPanel(silent) {
+    opened = true;
+    panel.classList.add('open');
+    bubble.classList.add('hidden');
+    unread.classList.add('hidden');
+    if (!greeted && !silent) greet();
+  }
+  function closePanel() {
+    opened = false;
+    panel.classList.remove('open');
+    bubble.classList.remove('hidden');
+  }
+
+  function init() {
+    panel = $('maya-panel'); msgs = $('maya-msgs'); chipsBox = $('maya-chips');
+    input = $('maya-input'); bubble = $('maya-bubble'); unread = $('maya-unread'); closeBtn = $('maya-close');
+    personalize();
+
+    /* bubble click greets normally; hero CTA passes silent=true to skip straight to booking */
+    bubble.addEventListener('click', function () { openPanel(); });
+    closeBtn.addEventListener('click', closePanel);
+    $('maya-send').addEventListener('click', function () { userSays(input.value); input.value = ''; input.focus(); });
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { userSays(input.value); input.value = ''; }
+    });
+
+    /* hero CTA opens widget straight into booking */
+    document.querySelectorAll('[data-action="book"]').forEach(function (b) {
+      b.addEventListener('click', function (e) {
+        e.preventDefault();
+        openPanel(true); /* silent: goes straight to booking, no greeting */
+        setTimeout(function () { if (S.mode === 'idle') startBooking(); }, FAST ? 50 : 600);
+      });
+    });
+
+    /* proactive nudge — once, ~8s in */
+    setTimeout(function () {
+      if (!opened && !autoOpened) {
+        autoOpened = true;
+        unread.classList.remove('hidden');
+        bubble.classList.add('hidden');
+        panel.classList.add('open');
+        opened = true;
+        if (!greeted) greet();
+      }
+    }, FAST ? 600 : 8000);
+
+    /* test hooks */
+    window.__maya = {
+      BIZ: BIZ, S: S,
+      send: function (t) { openPanel(); return userSays(t); },
+      open: openPanel, close: closePanel,
+      pickStars: pickStars
+    };
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+
+</script>
+</body>
+</html>
