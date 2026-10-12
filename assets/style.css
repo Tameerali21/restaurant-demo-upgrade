@@ -148,6 +148,26 @@ footer{padding:34px 0 90px; text-align:center; color:var(--muted); font-size:13.
 .star-btn.lit,.star-btn:hover{filter:none; opacity:1; transform:scale(1.15)}
 .gbtn{display:inline-block; margin-top:8px; background:#fff; border:1.5px solid #4285f4; color:#1a73e8; border-radius:10px; padding:9px 16px; font-size:13.5px; font-weight:600; text-decoration:none}
 
+/* ---------- captured-leads inbox preview ---------- */
+#visit .inbox-card{grid-column:1 / -1}
+.inbox-card .btn{margin-top:14px}
+.inbox-count{display:inline-block;min-width:26px;padding:1px 9px;margin-left:6px;border-radius:999px;background:var(--verde-soft);color:var(--verde-dark);font-size:13px;font-weight:700}
+#inbox-panel{margin-top:20px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
+.inbox-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:14px 18px;background:var(--verde);color:#fff}
+.inbox-head b{font-size:16px}
+.inbox-local{font-size:12px;color:#e7f0e9;border:1px dashed rgba(255,255,255,.55);border-radius:999px;padding:3px 12px}
+.inbox-list{padding:6px 18px 16px}
+.inbox-empty{padding:26px 8px;text-align:center;color:var(--muted);font-size:14.5px}
+.inbox-empty b{color:var(--verde-dark)}
+.lead-row{display:flex;gap:6px 14px;flex-wrap:wrap;align-items:baseline;padding:13px 0;border-bottom:1px dashed var(--line);font-size:14px}
+.lead-row:last-child{border-bottom:0}
+.lead-name{font-weight:700;color:var(--ink)}
+.lead-tag{background:var(--verde-soft);color:var(--verde-dark);border-radius:999px;padding:2px 11px;font-size:12.5px;font-weight:600}
+.lead-phone{color:var(--muted)}
+.lead-src{margin-left:auto;color:var(--terra-dark);font-size:12.5px;font-weight:600}
+.lead-when{color:var(--muted);font-size:12.5px;width:100%}
+.lead-detail{width:100%;color:var(--muted);font-size:13.5px;font-style:italic}
+
 #maya-inputbar{display:flex; gap:8px; padding:12px 14px; border-top:1px solid var(--line); background:#fff}
 #maya-input{flex:1; border:1.5px solid var(--line); border-radius:999px; padding:11px 16px; font-size:14.5px; outline:none; font-family:inherit}
 #maya-input:focus{border-color:var(--terra)}
@@ -162,4 +182,5 @@ footer{padding:34px 0 90px; text-align:center; color:var(--muted); font-size:13.
   #maya-panel{right:12px; bottom:12px; width:calc(100vw - 24px); height:78vh}
   #maya-bubble{right:16px; bottom:16px}
   section.block{padding:52px 0}
+  .lead-src{margin-left:0}
 }

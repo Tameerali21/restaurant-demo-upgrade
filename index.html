@@ -102,6 +102,18 @@
         <p>&#128222; <a href="tel:+15125550147" data-biz="phone">(512) 555-0147</a></p>
         <p style="color:var(--muted);font-size:14px">Free parking out back &middot; Patio seating &middot; Family friendly</p>
       </div>
+      <div class="addr-card inbox-card">
+        <h3>&#128203; Captured leads</h3>
+        <p style="color:var(--muted);font-size:14px">Curious what &ldquo;Saved to your dashboard&rdquo; actually looks like? This inbox preview shows every lead <span data-biz="host">Maya</span> captures &mdash; stored in your browser&rsquo;s local storage only. Nothing here ever leaves this page.</p>
+        <button id="inbox-toggle" class="btn btn-ghost" aria-expanded="false" aria-controls="inbox-panel">&#128203; View inbox <span id="inbox-count" class="inbox-count">0</span></button>
+      </div>
+    </div>
+    <div id="inbox-panel" class="inbox-panel" hidden>
+      <div class="inbox-head">
+        <b>&#128203; Captured leads inbox</b>
+        <span class="inbox-local">Browser-local preview &mdash; leads never leave this browser</span>
+      </div>
+      <div id="inbox-list" class="inbox-list"></div>
     </div>
   </div>
 </section>
@@ -130,7 +142,7 @@
 <!-- ============ MAYA CHAT WIDGET ============ -->
 <button id="maya-bubble" aria-label="Chat with us">&#128172;<span id="maya-unread" class="hidden">1</span></button>
 
-<div id="maya-panel" role="dialog" aria-label="Chat with Casa Verde">
+<div id="maya-panel" role="dialog" aria-label="Chat">
   <div class="maya-head">
     <div class="maya-avatar" data-biz="host-initial">M</div>
     <div class="who">
