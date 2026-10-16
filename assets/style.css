@@ -148,6 +148,12 @@ footer{padding:34px 0 90px; text-align:center; color:var(--muted); font-size:13.
 .star-btn.lit,.star-btn:hover{filter:none; opacity:1; transform:scale(1.15)}
 .gbtn{display:inline-block; margin-top:8px; background:#fff; border:1.5px solid #4285f4; color:#1a73e8; border-radius:10px; padding:9px 16px; font-size:13.5px; font-weight:600; text-decoration:none}
 
+/* ---------- tap-to-call CTA (fleet standard, 2026-10-16) ---------- */
+.call-cta{margin-top:16px; background:var(--verde); color:#fff; box-shadow:0 8px 20px rgba(20,83,45,.35)}
+.call-cta:hover{transform:translateY(-2px); background:var(--verde-dark); color:#fff}
+.call-link{font-weight:700; color:var(--terra-dark); text-decoration:none; border-bottom:2px solid var(--terra)}
+.call-link:hover{border-color:var(--terra-dark)}
+
 /* ---------- captured-leads inbox preview ---------- */
 #visit .inbox-card{grid-column:1 / -1}
 .inbox-card .btn{margin-top:14px}

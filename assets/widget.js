@@ -29,6 +29,11 @@
     document.querySelectorAll('[data-biz="city"]').forEach(function (el) { el.textContent = BIZ.city; });
     document.querySelectorAll('[data-biz="address"]').forEach(function (el) { el.textContent = BIZ.address; });
     document.querySelectorAll('[data-biz="phone"]').forEach(function (el) { el.textContent = BIZ.phone; });
+    /* tap-to-call binding (fleet standard, 2026-10-15): every tel: CTA follows ?phone=,
+       digits-only in the href so an injected param can't smuggle markup/JS. */
+    document.querySelectorAll('#call-cta, a[data-biz="phone"]').forEach(function (el) {
+      el.setAttribute('href', 'tel:' + String(BIZ.phone).replace(/[^+\d]/g, ''));
+    });
     document.querySelectorAll('[data-biz="host"]').forEach(function (el) { el.textContent = BIZ.host; });
     document.querySelectorAll('[data-biz="host-initial"]').forEach(function (el) { el.textContent = BIZ.host.charAt(0); });
     document.title = BIZ.name + ' — ' + BIZ.tagline + ' | ' + BIZ.city;
@@ -245,6 +250,14 @@
     scrollDown();
   }
 
+  /* ---------- tap-to-call helper (fleet standard, 2026-10-16) ----------
+     href is digits-and-plus-only (XSS-safe even from a hostile ?phone= param);
+     the visible text reuses the normal phone escaping. */
+  function callLinkHtml() {
+    var href = 'tel:' + String(BIZ.phone).replace(/[^+\d]/g, '');
+    return '<a class="call-link" href="' + escapeHtml(href) + '">&#128222; Call ' + escapeHtml(BIZ.phone) + '</a>';
+  }
+
   function escapeHtml(s) {
     return String(s).replace(/[&<>"']/g, function (c) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
@@ -404,7 +417,7 @@
         escapeHtml(S.booking.day) + ' at <b>' + escapeHtml(S.booking.time) + '</b><br>Under: <b>' + escapeHtml(S.booking.name) + '</b><br>' +
         'Reference: <span class="ref">' + ref + '</span><br><br>';
       if (t !== 'skip' && /\d/.test(t)) line += 'Confirmation text on its way. ';
-      line += 'Show this reference at the door &mdash; we\'ll have your table ready. Anything else I can help with?';
+      line += 'Show this reference at the door &mdash; we\'ll have your table ready. Anything else I can help with?<br><br>Prefer to talk it through? ' + callLinkHtml();
       S.mode = 'idle'; S.step = 0;
       return say(line, [{ label: '&#128203; See the menu' }, { label: '&#128336; Hours & location' }]);
     }
@@ -512,7 +525,7 @@
     if (has(t, 'review', 'rate', 'stars', 'feedback')) return startReview();
     /* location branch runs before service branches (house standard) */
     if (has(t, 'where', 'address', 'location', 'direction', 'park', 'find you')) {
-      return say('Find us at <b>' + escapeHtml(BIZ.address) + '</b> &mdash; free parking out back. &#128205;<br><br>Call us anytime: <b>' + escapeHtml(BIZ.phone) + '</b>',
+      return say('Find us at <b>' + escapeHtml(BIZ.address) + '</b> &mdash; free parking out back. &#128205;<br><br>' + callLinkHtml() + ' &mdash; we&rsquo;re happy to help anytime.',
         [{ label: '&#128197; Book a table' }]);
     }
     if (has(t, 'hour', 'open', 'close', 'when do you', 'what time')) return say(hoursHtml(), [{ label: '&#128197; Book a table' }]);
@@ -522,7 +535,7 @@
     if (has(t, 'vegan')) return say('Yes! Our <b>jackfruit carnitas tacos</b> ($13) and <b>roasted veggie bowl</b> ($14) are fully vegan &mdash; and most dishes can be made vegan on request. &#129382;', [{ label: '&#128197; Book a table' }]);
     if (has(t, 'vegetarian')) return say('Plenty! <b>Queso fundido</b> ($11), <b>verde enchiladas</b> ($16, ask veggie-style), and our <b>street corn</b> ($7) are all vegetarian. &#127803;', [{ label: '&#128197; Book a table' }]);
     if (has(t, 'gluten')) return say('Most of our menu is <b>gluten-free</b> &mdash; everything on corn tortillas, plus all bowls and salads. Just mention it and the kitchen takes care of the rest.', [{ label: '&#128197; Book a table' }]);
-    if (has(t, 'human', 'person', 'real person', 'call you', 'phone number', 'speak to')) return say('Of course &mdash; call us at <b>' + escapeHtml(BIZ.phone) + '</b> during open hours and a real human picks up. But honestly? I can handle <b>bookings, menus, and hours</b> right here, even at 2 AM. &#128521;', defaultChips());
+    if (has(t, 'human', 'person', 'real person', 'call you', 'phone number', 'speak to')) return say('Of course &mdash; ' + callLinkHtml() + ' during open hours and a real human picks up. But honestly? I can handle <b>bookings, menus, and hours</b> right here, even at 2 AM. &#128521;', defaultChips());
     if (has(t, 'thank', 'thanks', 'thx', 'great', 'awesome', 'perfect')) return say('Anytime! That\'s what I\'m here for. &#127790;', defaultChips());
     if (has(t, 'bye', 'goodbye', 'see you', 'later')) { S.mode = 'idle'; return say('See you soon at ' + escapeHtml(BIZ.name) + '! Bring an appetite. &#127790;'); }
     if (/\b(hi+|hello|hey+|hola|yo)\b/.test(t) || has(t, 'good morning', 'good evening')) return say('Hey hey! &#128075; What can I do for you &mdash; <b>menu</b>, <b>hours</b>, or shall I <b>book a table</b>?', defaultChips());
