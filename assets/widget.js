@@ -151,10 +151,11 @@
 
   /* conversation state */
   var S = {
-    mode: 'idle',          // idle | booking | afterhours | review
+    mode: 'idle',          // idle | booking | afterhours | review | quiz
     step: 0,
     booking: {},
     ah: {},
+    quiz: {},
     lastTopic: null
   };
 
@@ -344,7 +345,8 @@
       { label: '&#128203; See the menu' },
       { label: '&#128197; Book a table' },
       { label: '&#127769; After-hours demo' },
-      { label: '&#11088; Rate your visit' }
+      { label: '&#11088; Rate your visit' },
+      { label: '&#129518; 60-sec dinner finder', value: 'quiz' }
     ];
   }
 
@@ -512,17 +514,119 @@
       [{ label: '&#128197; Book a table' }, { label: 'No thanks', value: 'no thanks' }]);
   }
 
+  function reviewStep(text) {
+    S.mode = 'idle'; S.step = 0;
+    saveLead({ name: '(review feedback)', phone: '—', topic: 'Private feedback', details: text.trim(), source: 'review routing' });
+    return say('<b>Noted &mdash; truly.</b> Our manager will personally follow up on this.<br><br>' +
+      'We\'d love a second chance to earn those last stars. Can I book you a table for another try?',
+      [{ label: '&#128197; Book a table' }, { label: 'No thanks', value: 'no thanks' }]);
+  }
+
+  /* ---------- 60-sec dinner finder quiz (lead-capture pilot, fleet pattern 2026-10-21) ----------
+     HONESTY (hard rule): Maya NEVER invents dish names, prices, availability, or
+     reviews — the quiz promises the perfect table + a chef's-specials recommendation,
+     never fabricated specifics. */
+  var QUIZ_OCCASIONS = ['Date night', 'Family dinner', 'Business meal', 'Celebration', 'Just hungry'];
+  var QUIZ_PARTIES = ['Just 2', '3\u20134', '5\u20138', '9+ (big group)'];
+  var QUIZ_DIETARY = ['None', 'Vegetarian', 'Vegan', 'Gluten-free', 'Allergies'];
+
+  function canonChoice(t, options) {
+    var tl = t.toLowerCase();
+    for (var i = 0; i < options.length; i++) {
+      if (tl === options[i].toLowerCase()) return options[i];
+    }
+    return t.trim().slice(0, 60); /* free text accepted, length-capped */
+  }
+
+  function startQuiz() {
+    S.mode = 'quiz'; S.step = 0; S.quiz = {};
+    return say('<b>&#129518; The 60-second dinner finder!</b><br><br>' +
+      'Tell me how you like to dine and I&rsquo;ll build your <b>dinner profile</b> &mdash; then I&rsquo;ll get you the perfect table, plus a recommendation from tonight&rsquo;s chef&rsquo;s specials. No spam, no guesswork.<br><br>' +
+      '<b>First: what&rsquo;s the occasion?</b>',
+      QUIZ_OCCASIONS.map(function (o) { return { label: o }; }));
+  }
+
+  function quizStep(text) {
+    var t = text.trim();
+    if (S.step === 0) {
+      S.quiz.occasion = canonChoice(t, QUIZ_OCCASIONS); S.step = 1;
+      return say('Got it &mdash; <b>' + escapeHtml(S.quiz.occasion) + '</b>. &#129518;<br><br><b>Which night</b> are you thinking? <i>(e.g. Friday)</i>');
+    }
+    if (S.step === 1) {
+      S.quiz.date = canonChoice(t, []); S.step = 2;
+      return say('<b>' + escapeHtml(S.quiz.date) + '</b> &mdash; noted. &#129518;<br><br><b>How many</b> are coming?',
+        QUIZ_PARTIES.map(function (p) { return { label: p }; }));
+    }
+    if (S.step === 2) {
+      S.quiz.party = canonChoice(t, QUIZ_PARTIES); S.step = 3;
+      return say('<b>' + escapeHtml(S.quiz.party) + '</b> &mdash; perfect. &#129518;<br><br>Any <b>dietary needs</b> I should tell the kitchen about?',
+        QUIZ_DIETARY.map(function (d) { return { label: d }; }));
+    }
+    if (S.step === 3) {
+      S.quiz.dietary = canonChoice(t, QUIZ_DIETARY); S.step = 4;
+      return say('Noted &mdash; <b>' + escapeHtml(S.quiz.dietary) + '</b>. &#129518;<br><br><b>What&rsquo;s your name</b> for the dinner profile?');
+    }
+    if (S.step === 4) {
+      if (t.length < 2 || t.length > 40) {
+        return say('And your <b>name</b> for the dinner profile?');
+      }
+      S.quiz.name = t; S.step = 5;
+      return say('Thanks, ' + escapeHtml(cap(t.split(' ')[0])) + '! And the best <b>number</b> to send your table confirmation to?');
+    }
+    if (S.step === 5) {
+      var digits = digitsOf(t);
+      if (digits.length < 7) {
+        return say('Hmm, that doesn\'t look like a complete number &mdash; mind double-checking it? <i>(digits only is fine)</i>');
+      }
+      S.quiz.phone = t;
+      return finishQuiz();
+    }
+  }
+
+  function finishQuiz() {
+    var q = S.quiz;
+    saveLead({
+      name: q.name,
+      phone: q.phone,
+      topic: 'Dinner-finder quiz — qualified lead',
+      details: 'Occasion ' + q.occasion + ' · Date ' + q.date + ' · Party ' + q.party + ' · Dietary ' + q.dietary,
+      source: 'dinner quiz'
+    });
+    S.mode = 'idle'; S.step = 0; S.quiz = {};
+    return sayMany([
+      { html: '<b>&#9989; Quiz complete!</b> &#129518;<br><br>Here&rsquo;s your dinner profile:' },
+      {
+        dash: [
+          ['Occasion', q.occasion],
+          ['Date', q.date],
+          ['Party', q.party],
+          ['Dietary', q.dietary]
+        ]
+      },
+      {
+        html: '<b>Maya</b> will get you the perfect table &mdash; plus a recommendation from tonight&rsquo;s chef&rsquo;s specials, sent straight to your phone. ' +
+          'That&rsquo;s the whole point &mdash; <b>every visitor becomes a reservation</b>, not a missed customer. Anything else I can help with?',
+        chips: defaultChips()
+      }
+    ]);
+  }
+
   /* ---------- main router ---------- */
   function route(text) {
     var t = text.toLowerCase().trim();
 
     if (S.mode === 'booking') return bookingStep(text);
     if (S.mode === 'afterhours') return afterHoursStep(text);
+    if (S.mode === 'quiz') return quizStep(text);
     if (S.mode === 'review' && S.step === 1) return reviewStep(text);
 
     if (has(t, 'book', 'reserv', 'table for', 'seat')) return startBooking();
     if (has(t, 'after hour', 'after-hour', 'closed', 'late night', 'midnight', '11:42')) return startAfterHours();
     if (has(t, 'review', 'rate', 'stars', 'feedback')) return startReview();
+    /* 60-sec dinner finder quiz: word-start keywords only ("quiz"/"dinner finder"
+       must never hijack booking; chip value is 'quiz', never 'buyer quiz' etc. —
+       the word-start 'buy' prefix bug class caught on real-estate, 2026-10-20) */
+    if (has(t, 'quiz', 'dinner finder', 'find my dinner', 'dinner match', 'match quiz')) return startQuiz();
     /* location branch runs before service branches (house standard) */
     if (has(t, 'where', 'address', 'location', 'direction', 'park', 'find you')) {
       return say('Find us at <b>' + escapeHtml(BIZ.address) + '</b> &mdash; free parking out back. &#128205;<br><br>' + callLinkHtml() + ' &mdash; we&rsquo;re happy to help anytime.',
