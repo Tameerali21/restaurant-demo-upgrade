@@ -157,6 +157,7 @@
     ah: {},
     quiz: {},
     eventquiz: {},
+    prepquiz: {},
     lastTopic: null
   };
 
@@ -348,7 +349,8 @@
       { label: '&#127769; After-hours demo' },
       { label: '&#11088; Rate your visit' },
       { label: '&#129518; 60-sec dinner finder', value: 'quiz' },
-      { label: '&#127881; 60-sec private-dining quiz', value: 'event quiz' }
+      { label: '&#127881; 60-sec private-dining quiz', value: 'event quiz' },
+      { label: '&#128203; 60-sec dining-prep quiz', value: 'prep quiz' }
     ];
   }
 
@@ -688,6 +690,84 @@
     ]);
   }
 
+
+  /* ---------- 60-sec dining-prep quiz (fleet consult-prep port, 2026-10-31, gym/salon pattern) ----------
+     The dinner finder covers a table for tonight and the event quiz covers group
+     celebrations; this covers the visit itself — a first-timer or regular tells Maya
+     what matters most, and the visit plan follows. HONESTY (hard rule): Maya NEVER
+     invents table availability, wait times, prices, or dishes — the quiz promises a
+     personalized visit plan built around the visitor's priority + what to have ready
+     before coming in, nothing more.
+     ROUTER AUDIT 2026-10-31: the chip value 'prep quiz' contains 'quiz', so the
+     dinner-finder trigger's word-start 'quiz' match would hijack it (real-estate
+     'buy'/'buyer' bug class, 2026-10-20) — hence the prep trigger sits BEFORE both
+     the event-quiz and dinner-finder triggers. Bare 'prep' alone triggers nothing. */
+  var PREP_PRIORS = ['First visit', 'Been before', 'Regular here'];
+  var PREP_PRIORITIES = ['Best table', 'Dietary needs covered', 'Special occasion', 'Quick & easy'];
+
+  function startPrepQuiz() {
+    S.mode = 'prepquiz'; S.step = 0; S.prepquiz = {};
+    return say('<b>&#128203; The 60-second dining-prep quiz!</b><br><br>' +
+      'Two quick questions and I&rsquo;ll build your <b>dining-prep profile</b> &mdash; then we&rsquo;ll put together a <b>personalized visit plan</b> built around what matters most to you, plus what to have ready before you come in. No spam, no guesswork.<br><br>' +
+      '<b>First: have you dined with us before?</b>',
+      PREP_PRIORS.map(function (c) { return { label: c }; }));
+  }
+
+  function prepQuizStep(text) {
+    var t = text.trim();
+    if (S.step === 0) {
+      S.prepquiz.prior = canonChoice(t, PREP_PRIORS); S.step = 1;
+      return say('Got it &mdash; <b>' + escapeHtml(S.prepquiz.prior) + '</b>. &#128203;<br><br><b>What matters most</b> for your visit?',
+        PREP_PRIORITIES.map(function (x) { return { label: x }; }));
+    }
+    if (S.step === 1) {
+      S.prepquiz.priority = canonChoice(t, PREP_PRIORITIES); S.step = 2;
+      return say('Noted &mdash; <b>' + escapeHtml(S.prepquiz.priority) + '</b> it is. &#128203;<br><br><b>What&rsquo;s your name</b> for the dining-prep profile?');
+    }
+    if (S.step === 2) {
+      if (t.length < 2 || t.length > 40) {
+        return say('And your <b>name</b> for the dining-prep profile?');
+      }
+      S.prepquiz.name = t; S.step = 3;
+      return say('Thanks, ' + escapeHtml(cap(t.split(' ')[0])) + '! And the best <b>number</b> to send your visit plan to?');
+    }
+    if (S.step === 3) {
+      var digits = digitsOf(t);
+      if (digits.length < 7) {
+        return say('Hmm, that doesn&rsquo;t look like a complete number &mdash; mind double-checking it? <i>(digits only is fine)</i>');
+      }
+      S.prepquiz.phone = t;
+      return finishPrepQuiz();
+    }
+  }
+
+  function finishPrepQuiz() {
+    var q = S.prepquiz;
+    saveLead({
+      name: q.name,
+      phone: q.phone,
+      topic: 'Dining-prep quiz \u2014 qualified lead',
+      details: 'Prior ' + q.prior + ' \u00b7 Priority ' + q.priority,
+      source: 'dining-prep quiz'
+    });
+    S.mode = 'idle'; S.step = 0; S.prepquiz = {};
+    return sayMany([
+      { html: '<b>&#9989; Quiz complete!</b> &#128203;<br><br>Here&rsquo;s your dining-prep profile:' },
+      {
+        dash: [
+          ['Prior', q.prior],
+          ['Priority', q.priority]
+        ]
+      },
+      {
+        html: 'We&rsquo;ll put together your <b>personalized visit plan</b> built around your priority and send it to your number &mdash; plus what to have ready before you come in (your party size, any dietary notes, and the occasion), so your visit is all set from the first hello. ' +
+          'No invented promises here &mdash; your plan is built around your visit, and the team confirms the details with you. ' +
+          'That&rsquo;s the whole point &mdash; <b>every visitor becomes a reservation</b>, not a missed customer. Anything else I can help with?',
+        chips: defaultChips()
+      }
+    ]);
+  }
+
   /* ---------- main router ---------- */
   function route(text) {
     var t = text.toLowerCase().trim();
@@ -696,11 +776,16 @@
     if (S.mode === 'afterhours') return afterHoursStep(text);
     if (S.mode === 'quiz') return quizStep(text);
     if (S.mode === 'eventquiz') return eventQuizStep(text);
+    if (S.mode === 'prepquiz') return prepQuizStep(text);
     if (S.mode === 'review' && S.step === 1) return reviewStep(text);
 
     if (has(t, 'book', 'reserv', 'table for', 'seat')) return startBooking();
     if (has(t, 'after hour', 'after-hour', 'closed', 'late night', 'midnight', '11:42')) return startAfterHours();
     if (has(t, 'review', 'rate', 'stars', 'feedback')) return startReview();
+    /* 60-sec dining-prep quiz BEFORE both other quizzes: 'prep quiz' contains
+       'quiz', so the dinner-finder trigger below would hijack it (the 2026-10-20
+       'buy' bug class). Bare 'prep' alone must NOT start it. */
+    if (has(t, 'prep quiz', 'dining prep quiz', 'dining-prep quiz', 'consult prep quiz', 'consultation prep quiz')) return startPrepQuiz();
     /* 60-sec private-dining quiz BEFORE the dinner finder: 'event quiz' contains
        the word 'quiz', so the dinner trigger below would hijack it (the 2026-10-20
        'buy' bug class; hotel event-quiz port, 2026-10-26). Bare 'event' / 'private
