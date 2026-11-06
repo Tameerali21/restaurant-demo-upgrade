@@ -350,7 +350,8 @@
       { label: '&#11088; Rate your visit' },
       { label: '&#129518; 60-sec dinner finder', value: 'quiz' },
       { label: '&#127881; 60-sec private-dining quiz', value: 'event quiz' },
-      { label: '&#128203; 60-sec dining-prep quiz', value: 'prep quiz' }
+      { label: '&#128203; 60-sec dining-prep quiz', value: 'prep quiz' },
+      { label: '&#129361; 60-sec takeout quiz', value: 'takeout quiz' }
     ];
   }
 
@@ -691,6 +692,92 @@
   }
 
 
+  /* ---------- 60-sec takeout quiz (fleet fourth-quiz port, 2026-11-06, hotel spa /
+     real-estate relocation pattern) ----------
+     The dinner finder covers a table tonight, the event quiz covers group
+     celebrations, the prep quiz covers the visit itself; this covers the other
+     half of the niche — takeout and delivery. HONESTY (hard rule): Maya NEVER
+     invents prices, wait times, dish names beyond the menu's generic categories,
+     or availability — the quiz promises a personalized takeout plan built around
+     the visitor's craving, and the kitchen confirms the ready time on the call.
+     ROUTER AUDIT 2026-11-06: the chip value 'takeout quiz' contains 'quiz', so
+     the dinner-finder trigger's word-start 'quiz' match would hijack it (real-estate
+     'buy'/'buyer' bug class, 2026-10-20) — hence the takeout trigger sits FIRST,
+     before the prep-quiz trigger. Bare 'takeout' alone must NOT start it — it
+     falls through to the existing takeout/delivery info answer. */
+  var TAKEOUT_ORDERS = ['Pickup', 'Delivery', 'Curbside'];
+  var TAKEOUT_CRAVINGS = ['Tacos', 'Burritos', 'Enchiladas', 'Something light'];
+  var TAKEOUT_WHENS = ['Today', 'Tonight', 'This weekend'];
+
+  function startTakeoutQuiz() {
+    S.mode = 'takeoutquiz'; S.step = 0; S.takeoutquiz = {};
+    return say('<b>&#129361; The 60-second takeout quiz!</b><br><br>' +
+      'Three quick questions and I&rsquo;ll build your <b>takeout profile</b> &mdash; then we&rsquo;ll put together a <b>personalized takeout plan</b> built around what you&rsquo;re craving, and the kitchen confirms the ready time on the call. No spam, no guesswork.<br><br>' +
+      '<b>First: how would you like your order?</b>',
+      TAKEOUT_ORDERS.map(function (c) { return { label: c }; }));
+  }
+
+  function takeoutQuizStep(text) {
+    var t = text.trim();
+    if (S.step === 0) {
+      S.takeoutquiz.order = canonChoice(t, TAKEOUT_ORDERS); S.step = 1;
+      return say('Got it &mdash; <b>' + escapeHtml(S.takeoutquiz.order) + '</b>. &#129361;<br><br><b>What are you craving?</b>',
+        TAKEOUT_CRAVINGS.map(function (x) { return { label: x }; }));
+    }
+    if (S.step === 1) {
+      S.takeoutquiz.craving = canonChoice(t, TAKEOUT_CRAVINGS); S.step = 2;
+      return say('Noted &mdash; <b>' + escapeHtml(S.takeoutquiz.craving) + '</b> it is. &#129361;<br><br><b>When do you want it?</b>',
+        TAKEOUT_WHENS.map(function (x) { return { label: x }; }));
+    }
+    if (S.step === 2) {
+      S.takeoutquiz.when = canonChoice(t, TAKEOUT_WHENS); S.step = 3;
+      return say('<b>' + escapeHtml(S.takeoutquiz.when) + '</b> &mdash; noted. &#129361;<br><br><b>What&rsquo;s your name</b> for the takeout profile?');
+    }
+    if (S.step === 3) {
+      if (t.length < 2 || t.length > 40) {
+        return say('And your <b>name</b> for the takeout profile?');
+      }
+      S.takeoutquiz.name = t; S.step = 4;
+      return say('Thanks, ' + escapeHtml(cap(t.split(' ')[0])) + '! And the best <b>number</b> for the kitchen to confirm your ready time?');
+    }
+    if (S.step === 4) {
+      var digits = digitsOf(t);
+      if (digits.length < 7) {
+        return say('Hmm, that doesn&rsquo;t look like a complete number &mdash; mind double-checking it? <i>(digits only is fine)</i>');
+      }
+      S.takeoutquiz.phone = t;
+      return finishTakeoutQuiz();
+    }
+  }
+
+  function finishTakeoutQuiz() {
+    var q = S.takeoutquiz;
+    saveLead({
+      name: q.name,
+      phone: q.phone,
+      topic: 'Takeout quiz \u2014 qualified lead',
+      details: 'Order ' + q.order + ' \u00b7 Craving ' + q.craving + ' \u00b7 When ' + q.when,
+      source: 'takeout quiz'
+    });
+    S.mode = 'idle'; S.step = 0; S.takeoutquiz = {};
+    return sayMany([
+      { html: '<b>&#9989; Quiz complete!</b> &#129361;<br><br>Here&rsquo;s your takeout profile:' },
+      {
+        dash: [
+          ['Order', q.order],
+          ['Craving', q.craving],
+          ['When', q.when]
+        ]
+      },
+      {
+        html: 'We&rsquo;ll put together your <b>personalized takeout plan</b> built around your craving and send it to your number &mdash; and the kitchen confirms the ready time on the call, so your order is all set from the first hello. ' +
+          'No invented promises here &mdash; your plan is built around your order, and the team confirms the details with you. ' +
+          'That&rsquo;s the whole point &mdash; <b>every craving becomes a pickup</b>, not a missed customer. Anything else I can help with?',
+        chips: defaultChips()
+      }
+    ]);
+  }
+
   /* ---------- 60-sec dining-prep quiz (fleet consult-prep port, 2026-10-31, gym/salon pattern) ----------
      The dinner finder covers a table for tonight and the event quiz covers group
      celebrations; this covers the visit itself — a first-timer or regular tells Maya
@@ -777,11 +864,17 @@
     if (S.mode === 'quiz') return quizStep(text);
     if (S.mode === 'eventquiz') return eventQuizStep(text);
     if (S.mode === 'prepquiz') return prepQuizStep(text);
+    if (S.mode === 'takeoutquiz') return takeoutQuizStep(text);
     if (S.mode === 'review' && S.step === 1) return reviewStep(text);
 
     if (has(t, 'book', 'reserv', 'table for', 'seat')) return startBooking();
     if (has(t, 'after hour', 'after-hour', 'closed', 'late night', 'midnight', '11:42')) return startAfterHours();
     if (has(t, 'review', 'rate', 'stars', 'feedback')) return startReview();
+    /* 60-sec takeout quiz FIRST, before the prep trigger: 'takeout quiz' contains
+       'quiz', so the dinner-finder trigger below would hijack it (the 2026-10-20
+       'buy' bug class). Bare 'takeout' alone must NOT start it — it falls through
+       to the takeout/delivery info answer below. */
+    if (has(t, 'takeout quiz', 'takeout-quiz', 'take out quiz')) return startTakeoutQuiz();
     /* 60-sec dining-prep quiz BEFORE both other quizzes: 'prep quiz' contains
        'quiz', so the dinner-finder trigger below would hijack it (the 2026-10-20
        'buy' bug class). Bare 'prep' alone must NOT start it. */
