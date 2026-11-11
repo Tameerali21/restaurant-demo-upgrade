@@ -158,6 +158,8 @@
     quiz: {},
     eventquiz: {},
     prepquiz: {},
+    takeoutquiz: {},
+    brunchquiz: {},
     lastTopic: null
   };
 
@@ -351,7 +353,8 @@
       { label: '&#129518; 60-sec dinner finder', value: 'quiz' },
       { label: '&#127881; 60-sec private-dining quiz', value: 'event quiz' },
       { label: '&#128203; 60-sec dining-prep quiz', value: 'prep quiz' },
-      { label: '&#129361; 60-sec takeout quiz', value: 'takeout quiz' }
+      { label: '&#129361; 60-sec takeout quiz', value: 'takeout quiz' },
+      { label: '&#129367; 60-sec brunch quiz', value: 'brunch quiz' }
     ];
   }
 
@@ -692,6 +695,88 @@
   }
 
 
+  /* ---------- 60-sec brunch quiz (fleet fifth-quiz port, 2026-11-11, hotel loyalty /
+     real-estate investment pattern) ----------
+     The dinner finder covers a table tonight, the event quiz covers group
+     celebrations, the prep quiz covers the visit itself, the takeout quiz covers
+     takeout and delivery; this covers the other half of the niche — Sunday brunch.
+     HONESTY (hard rule): Maya NEVER invents prices, wait times, dish names,
+     availability, or slots held — the quiz promises a personalized brunch plan
+     built around the visitor's crew and style, and the team confirms the table
+     on the call.
+     ROUTER AUDIT 2026-11-11: the chip value 'brunch quiz' contains 'quiz', so
+     the dinner-finder trigger's word-start 'quiz' match would hijack it (real-estate
+     'buy'/'buyer' bug class, 2026-10-20) — hence the brunch trigger sits FIRST,
+     before the takeout-quiz trigger. 'brunch' appears only in the hours HTML
+     ("brunch 10–2"), NOT as any router keyword, so no earlier branch matches
+     'brunch quiz'. Bare 'brunch' alone must NOT start it — it falls through to
+     the graceful fallback. */
+  var BRUNCH_CREWS = ['Solo', 'With friends', 'Family', 'Date'];
+  var BRUNCH_STYLES = ['Hearty & classic', 'Light & fresh', 'Sweet tooth', 'Spicy & bold'];
+
+  function startBrunchQuiz() {
+    S.mode = 'brunchquiz'; S.step = 0; S.brunchquiz = {};
+    return say('<b>&#129367; The 60-second brunch quiz!</b><br><br>' +
+      'Two quick questions and I&rsquo;ll build your <b>brunch profile</b> &mdash; then we&rsquo;ll put together a <b>personalized brunch plan</b> built around your crew and style, and the team confirms the table on the call. No spam, no guesswork.<br><br>' +
+      '<b>First: who&rsquo;s coming for brunch?</b>',
+      BRUNCH_CREWS.map(function (c) { return { label: c }; }));
+  }
+
+  function brunchQuizStep(text) {
+    var t = text.trim();
+    if (S.step === 0) {
+      S.brunchquiz.crew = canonChoice(t, BRUNCH_CREWS); S.step = 1;
+      return say('Got it &mdash; <b>' + escapeHtml(S.brunchquiz.crew) + '</b>. &#129367;<br><br><b>What kind of brunch</b> are you in the mood for?',
+        BRUNCH_STYLES.map(function (x) { return { label: x }; }));
+    }
+    if (S.step === 1) {
+      S.brunchquiz.style = canonChoice(t, BRUNCH_STYLES); S.step = 2;
+      return say('Noted &mdash; <b>' + escapeHtml(S.brunchquiz.style) + '</b> it is. &#129367;<br><br><b>What&rsquo;s your name</b> for the brunch profile?');
+    }
+    if (S.step === 2) {
+      if (t.length < 2 || t.length > 40) {
+        return say('And your <b>name</b> for the brunch profile?');
+      }
+      S.brunchquiz.name = t; S.step = 3;
+      return say('Thanks, ' + escapeHtml(cap(t.split(' ')[0])) + '! And the best <b>number</b> for the team to confirm your table?');
+    }
+    if (S.step === 3) {
+      var digits = digitsOf(t);
+      if (digits.length < 7) {
+        return say('Hmm, that doesn&rsquo;t look like a complete number &mdash; mind double-checking it? <i>(digits only is fine)</i>');
+      }
+      S.brunchquiz.phone = t;
+      return finishBrunchQuiz();
+    }
+  }
+
+  function finishBrunchQuiz() {
+    var q = S.brunchquiz;
+    saveLead({
+      name: q.name,
+      phone: q.phone,
+      topic: 'Brunch quiz \u2014 qualified lead',
+      details: 'Crew ' + q.crew + ' \u00b7 Style ' + q.style,
+      source: 'brunch quiz'
+    });
+    S.mode = 'idle'; S.step = 0; S.brunchquiz = {};
+    return sayMany([
+      { html: '<b>&#9989; Quiz complete!</b> &#129367;<br><br>Here&rsquo;s your brunch profile:' },
+      {
+        dash: [
+          ['Crew', q.crew],
+          ['Style', q.style]
+        ]
+      },
+      {
+        html: 'We&rsquo;ll put together your <b>personalized brunch plan</b> built around your crew and style and send it to your number &mdash; and the team confirms the table on the call, so your brunch is all set from the first hello. ' +
+          'No invented promises here &mdash; your plan is built around your crew, and the team confirms the details with you. ' +
+          'That&rsquo;s the whole point &mdash; <b>every brunch becomes a booked table</b>, not a missed customer. Anything else I can help with?',
+        chips: defaultChips()
+      }
+    ]);
+  }
+
   /* ---------- 60-sec takeout quiz (fleet fourth-quiz port, 2026-11-06, hotel spa /
      real-estate relocation pattern) ----------
      The dinner finder covers a table tonight, the event quiz covers group
@@ -865,11 +950,18 @@
     if (S.mode === 'eventquiz') return eventQuizStep(text);
     if (S.mode === 'prepquiz') return prepQuizStep(text);
     if (S.mode === 'takeoutquiz') return takeoutQuizStep(text);
+    if (S.mode === 'brunchquiz') return brunchQuizStep(text);
     if (S.mode === 'review' && S.step === 1) return reviewStep(text);
 
     if (has(t, 'book', 'reserv', 'table for', 'seat')) return startBooking();
     if (has(t, 'after hour', 'after-hour', 'closed', 'late night', 'midnight', '11:42')) return startAfterHours();
     if (has(t, 'review', 'rate', 'stars', 'feedback')) return startReview();
+    /* 60-sec brunch quiz FIRST, before the takeout trigger: 'brunch quiz' contains
+       'quiz', so the dinner-finder trigger below would hijack it (the 2026-10-20
+       'buy' bug class). 'brunch' appears only in the hours HTML, NOT as any router
+       keyword, so no earlier branch matches it. Bare 'brunch' alone must NOT start
+       it — it falls through to the graceful fallback below. */
+    if (has(t, 'brunch quiz', 'brunch-quiz')) return startBrunchQuiz();
     /* 60-sec takeout quiz FIRST, before the prep trigger: 'takeout quiz' contains
        'quiz', so the dinner-finder trigger below would hijack it (the 2026-10-20
        'buy' bug class). Bare 'takeout' alone must NOT start it — it falls through
