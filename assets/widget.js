@@ -160,6 +160,7 @@
     prepquiz: {},
     takeoutquiz: {},
     brunchquiz: {},
+    dessertquiz: {},
     lastTopic: null
   };
 
@@ -354,7 +355,8 @@
       { label: '&#127881; 60-sec private-dining quiz', value: 'event quiz' },
       { label: '&#128203; 60-sec dining-prep quiz', value: 'prep quiz' },
       { label: '&#129361; 60-sec takeout quiz', value: 'takeout quiz' },
-      { label: '&#129367; 60-sec brunch quiz', value: 'brunch quiz' }
+      { label: '&#129367; 60-sec brunch quiz', value: 'brunch quiz' },
+      { label: '&#127856; 60-sec dessert quiz', value: 'dessert quiz' }
     ];
   }
 
@@ -777,6 +779,90 @@
     ]);
   }
 
+
+  /* ---------- 60-sec dessert quiz (fleet sixth-quiz port, 2026-11-16, hotel weekend /
+     real-estate downsizing pattern) ----------
+     The dinner finder covers a table tonight, the event quiz covers group
+     celebrations, the prep quiz covers the visit itself, the takeout quiz covers
+     takeout and delivery, the brunch quiz covers Sunday brunch; this covers the
+     other half of the niche — dessert, the sweet ending every meal deserves.
+     HONESTY (hard rule): Maya NEVER invents prices, dish names, or promises
+     about what is on offer — the quiz promises a personalized dessert plan
+     built around the visitor's sweet tooth and occasion, and the team confirms
+     the details on the call.
+     ROUTER AUDIT 2026-11-16: the chip value 'dessert quiz' contains 'quiz', so
+     the dinner-finder trigger's word-start 'quiz' match would hijack it (real-estate
+     'buy'/'buyer' bug class, 2026-10-20) — hence the dessert trigger sits FIRST,
+     before the brunch-quiz trigger. 'dessert' appears in no earlier router branch,
+     so no earlier branch matches 'dessert quiz'.
+     Bare 'dessert' alone must NOT start it — it falls through to the graceful
+     fallback. */
+  var DESSERT_SWEETS = ['Chocolate lover', 'Fruity & fresh', 'Something light', 'Surprise me'];
+  var DESSERT_WHENS = ['After dinner tonight', 'Weekend treat', 'Celebration', 'Just because'];
+
+  function startDessertQuiz() {
+    S.mode = 'dessertquiz'; S.step = 0; S.dessertquiz = {};
+    return say('<b>&#127856; The 60-second dessert quiz!</b><br><br>' +
+      'Two quick questions and I&rsquo;ll build your <b>dessert profile</b> &mdash; then we&rsquo;ll put together a <b>personalized dessert plan</b> built around your sweet tooth and occasion, and the team confirms the details on the call. No spam, no guesswork.<br><br>' +
+      '<b>First: what kind of dessert</b> are you in the mood for?',
+      DESSERT_SWEETS.map(function (c) { return { label: c }; }));
+  }
+
+  function dessertQuizStep(text) {
+    var t = text.trim();
+    if (S.step === 0) {
+      S.dessertquiz.sweet = canonChoice(t, DESSERT_SWEETS); S.step = 1;
+      return say('Got it &mdash; <b>' + escapeHtml(S.dessertquiz.sweet) + '</b>. &#127856;<br><br><b>When&rsquo;s the treat for?</b>',
+        DESSERT_WHENS.map(function (x) { return { label: x }; }));
+    }
+    if (S.step === 1) {
+      S.dessertquiz.when = canonChoice(t, DESSERT_WHENS); S.step = 2;
+      return say('Noted &mdash; <b>' + escapeHtml(S.dessertquiz.when) + '</b> it is. &#127856;<br><br><b>What&rsquo;s your name</b> for the dessert profile?');
+    }
+    if (S.step === 2) {
+      if (t.length < 2 || t.length > 40) {
+        return say('And your <b>name</b> for the dessert profile?');
+      }
+      S.dessertquiz.name = t; S.step = 3;
+      return say('Thanks, ' + escapeHtml(cap(t.split(' ')[0])) + '! And the best <b>number</b> for the team to confirm your dessert plan?');
+    }
+    if (S.step === 3) {
+      var digits = digitsOf(t);
+      if (digits.length < 7) {
+        return say('Hmm, that doesn&rsquo;t look like a complete number &mdash; mind double-checking it? <i>(digits only is fine)</i>');
+      }
+      S.dessertquiz.phone = t;
+      return finishDessertQuiz();
+    }
+  }
+
+  function finishDessertQuiz() {
+    var q = S.dessertquiz;
+    saveLead({
+      name: q.name,
+      phone: q.phone,
+      topic: 'Dessert quiz \u2014 qualified lead',
+      details: 'Sweet ' + q.sweet + ' \u00b7 When ' + q.when,
+      source: 'dessert quiz'
+    });
+    S.mode = 'idle'; S.step = 0; S.dessertquiz = {};
+    return sayMany([
+      { html: '<b>&#9989; Quiz complete!</b> &#127856;<br><br>Here&rsquo;s your dessert profile:' },
+      {
+        dash: [
+          ['Sweet', q.sweet],
+          ['When', q.when]
+        ]
+      },
+      {
+        html: 'We&rsquo;ll put together your <b>personalized dessert plan</b> built around your sweet tooth and occasion and send it to your number &mdash; and the team confirms the details on the call, so your sweet ending is all set from the first hello. ' +
+          'No invented promises here &mdash; your plan is built around your answers, and the team confirms the details with you. ' +
+          'That&rsquo;s the whole point &mdash; <b>every sweet ending becomes a booked table</b>, not a missed customer. Anything else I can help with?',
+        chips: defaultChips()
+      }
+    ]);
+  }
+
   /* ---------- 60-sec takeout quiz (fleet fourth-quiz port, 2026-11-06, hotel spa /
      real-estate relocation pattern) ----------
      The dinner finder covers a table tonight, the event quiz covers group
@@ -951,11 +1037,18 @@
     if (S.mode === 'prepquiz') return prepQuizStep(text);
     if (S.mode === 'takeoutquiz') return takeoutQuizStep(text);
     if (S.mode === 'brunchquiz') return brunchQuizStep(text);
+    if (S.mode === 'dessertquiz') return dessertQuizStep(text);
     if (S.mode === 'review' && S.step === 1) return reviewStep(text);
 
     if (has(t, 'book', 'reserv', 'table for', 'seat')) return startBooking();
     if (has(t, 'after hour', 'after-hour', 'closed', 'late night', 'midnight', '11:42')) return startAfterHours();
     if (has(t, 'review', 'rate', 'stars', 'feedback')) return startReview();
+    /* 60-sec dessert quiz FIRST, before the brunch trigger: 'dessert quiz' contains
+       'quiz', so the dinner-finder trigger below would hijack it (the 2026-10-20
+       'buy' bug class). 'dessert' appears nowhere as a router keyword, so no earlier
+       branch matches it. Bare 'dessert' alone must NOT start it — it falls through
+       to the graceful fallback below. */
+    if (has(t, 'dessert quiz', 'dessert-quiz')) return startDessertQuiz();
     /* 60-sec brunch quiz FIRST, before the takeout trigger: 'brunch quiz' contains
        'quiz', so the dinner-finder trigger below would hijack it (the 2026-10-20
        'buy' bug class). 'brunch' appears only in the hours HTML, NOT as any router
